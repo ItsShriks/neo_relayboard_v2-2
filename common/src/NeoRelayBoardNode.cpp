@@ -628,7 +628,20 @@ void NeoRelayBoardNode::PublishEmergencyStopStates()
 	EM_msg.scanner_stop = m_SerRelayBoard->isScannerStop();
 
 	// determine current EMStopState
-	EM_signal = (EM_msg.emergency_button_stop || EM_msg.scanner_stop);
+	// MODIFIED (Steve): scanner stop no longer latches the ROS EM stop, so the drives are
+	// not disabled and re-initialised when the scanner field is triggered. The red
+	// protective field must still cut motor power in hardware; scanner_stop is still
+	// published above for monitoring.
+	//
+	// TO RESTORE THE ORIGINAL BEHAVIOUR (scanner stop = EM stop):
+	//   1. delete the line   EM_signal = EM_msg.emergency_button_stop;
+	//   2. uncomment the line below the "ORIGINAL" marker
+	//   3. rebuild:  colcon build --packages-select neo_relayboard_v2-2
+	//      and restart the base bringup
+	//
+	// ORIGINAL:
+	// EM_signal = (EM_msg.emergency_button_stop || EM_msg.scanner_stop);
+	EM_signal = EM_msg.emergency_button_stop;
 
 	switch (m_iEM_stop_state)
 	{
